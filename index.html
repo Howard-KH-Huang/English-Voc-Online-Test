@@ -39,6 +39,7 @@
     </div>
     <button id="retryBtn">🔁 重新測驗</button>
   </div>
+
   <script>
     const items = [...Array(50)].map((_, i) => ({
       audio: `chunk_${String(i + 1).padStart(2, '0')}.mp3`,
@@ -54,6 +55,7 @@
     }
 
     let selectedItems, choiceItems, typingItems, timerStartTime, totalTime = 15 * 60;
+    let interval;
 
     document.getElementById('startBtn').addEventListener('click', () => {
       const userClass = document.getElementById('userClass').value.trim();
@@ -72,7 +74,7 @@
     function startTimer() {
       timerStartTime = Date.now();
       const timerElement = document.getElementById('timer');
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         const minutes = Math.floor(totalTime / 60);
         const seconds = totalTime % 60;
         timerElement.textContent = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -144,6 +146,9 @@
     }
 
     document.getElementById('submitBtn').addEventListener('click', () => {
+      clearInterval(interval); // ✅ 停止計時器
+      document.getElementById('timer').textContent += '（已提交）';
+
       const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
       const minutes = Math.floor(elapsed / 60);
       const seconds = elapsed % 60;
@@ -225,10 +230,9 @@
       fetch('https://script.google.com/macros/s/AKfycbwzINYcuMgUAnQylQmzeujzVWKV43RMAtaWTD_SkEsYBODWPXGztaQlK1qkl_PwtIGBOA/exec', {
         method: 'POST',
         mode: 'no-cors',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(payload)
-})
-
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
     });
 
     document.getElementById('retryBtn').addEventListener('click', () => {
@@ -239,6 +243,7 @@
       document.getElementById('reviewSection').classList.add('hidden');
       document.getElementById('userInfo').classList.remove('hidden');
       document.getElementById('quizSection').classList.add('hidden');
+      document.getElementById('timer').textContent = 'Time left: 15:00';
       totalTime = 15 * 60;
       timerStartTime = null;
       document.getElementById('userClass').value = '';
