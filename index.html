@@ -218,20 +218,22 @@
       });
       document.getElementById('reviewSection').classList.remove('hidden');
 
-      const payload = {
-        class: document.getElementById('userClass').value,
-        number: document.getElementById('userNumber').value,
-        name: document.getElementById('userName').value,
-        score: score,
-        time: timeTaken
-      };
+const payload = {
+  class: document.getElementById('userClass').value,
+  number: document.getElementById('userNumber').value,
+  name: document.getElementById('userName').value,
+  score: score,
+  correctCount: correctCount,
+  incorrectCount: incorrectCount,
+  unansweredCount: unansweredCount,
+  timeSpent: timeSpentInSeconds
+};
 
-      fetch('https://script.google.com/macros/s/AKfycbxRG2nTnpGyoR6A4ooXQLks1f_YEHy3gSSSoALPxnI2yUjTOqGa-lWyNQTgjIg0i6cI/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+fetch('https://script.google.com/macros/s/AKfycbxRG2nTnpGyoR6A4ooXQLks1f_YEHy3gSSSoALPxnI2yUjTOqGa-lWyNQTgjIg0i6cI/exec', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+});
     });
 
     document.getElementById('retryBtn').addEventListener('click', () => {
