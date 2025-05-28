@@ -223,11 +223,17 @@
       };
 
       fetch('https://script.google.com/macros/s/AKfycbwAwplm85QyLQUWtUnvNFhje6wodzF3cz71oNlAh-TJtOxYWKoY_ceoBJH7ORxsEB-Z/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(res => console.log("回傳成功")).catch(err => console.error("回傳失敗", err));
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+})
+.then(response => response.text())
+.then(result => {
+  console.log("成功回傳至試算表：", result);
+})
+.catch(error => {
+  console.error("資料送出失敗：", error);
+});
 
     document.getElementById('retryBtn').addEventListener('click', () => {
       document.getElementById('quizForm').innerHTML = '';
