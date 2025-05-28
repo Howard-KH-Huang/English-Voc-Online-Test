@@ -223,11 +223,17 @@
       };
 
       fetch('https://script.google.com/macros/s/AKfycbwAwplm85QyLQUWtUnvNFhje6wodzF3cz71oNlAh-TJtOxYWKoY_ceoBJH7ORxsEB-Z/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(res => console.log("回傳成功")).catch(err => console.error("回傳失敗", err));
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+})
+.then(res => res.text())
+.then(result => {
+  console.log("伺服器回應：", result);
+})
+.catch(err => {
+  console.error("錯誤：", err);
+});
 
     document.getElementById('retryBtn').addEventListener('click', () => {
       document.getElementById('quizForm').innerHTML = '';
