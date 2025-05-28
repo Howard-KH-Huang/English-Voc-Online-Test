@@ -222,11 +222,13 @@
         timeSpent: timeSpent
       };
 
-      fetch('https://script.google.com/macros/s/AKfycbyYdENwdzS_ae1dkIQpNfWq17yPoAQMnEYNL3PTRUXli7iR-ASlPb_GgpphGZbyEnhv/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
+      fetch('https://script.google.com/macros/s/AKfycbxxWz6pgkBut7YoF5Iq9w49yD6THggD6_IlyQAWwcFMxMJTpUC7Pe2r0HUWXPXPsQkQ/exec', {
+  method: 'POST',
+  mode: 'no-cors',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+});
+
       .then(res => res.text())
       .then(data => console.log("Google Sheet 回應：", data))
       .catch(error => console.error("發送至 Google Sheet 錯誤：", error));
