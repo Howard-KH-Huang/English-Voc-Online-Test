@@ -212,15 +212,16 @@
       document.getElementById('reviewSection').classList.remove('hidden');
 
       const payload = {
-        class: document.getElementById('userClass').value,
-        number: document.getElementById('userNumber').value,
-        name: document.getElementById('userName').value,
-        score: score,
-        correct: correctCount,
-        incorrect: incorrectCount,
-        unanswered: unansweredCount,
-        timeSpent: timeSpent
-      };
+  class: document.getElementById('userClass').value,
+  number: document.getElementById('userNumber').value,
+  name: document.getElementById('userName').value,
+  score: score,
+  correct: correctCount,
+  incorrect: incorrectCount,
+  unanswered: unansweredCount,
+  timeSpent: timeTaken
+};
+
 
       fetch('https://script.google.com/macros/s/AKfycbxxWz6pgkBut7YoF5Iq9w49yD6THggD6_IlyQAWwcFMxMJTpUC7Pe2r0HUWXPXPsQkQ/exec', {
   method: 'POST',
