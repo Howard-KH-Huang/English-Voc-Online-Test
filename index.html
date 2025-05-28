@@ -226,9 +226,8 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      })
-
-     });
+      }).then(res => console.log("回傳成功")).catch(err => console.error("回傳失敗", err));
+    });
 
     document.getElementById('retryBtn').addEventListener('click', () => {
       document.getElementById('quizForm').innerHTML = '';
