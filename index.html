@@ -223,14 +223,15 @@ const payload = {
   number: document.getElementById('userNumber').value,
   name: document.getElementById('userName').value,
   score: score,
-  correctCount: correctCount,
-  incorrectCount: incorrectCount,
-  unansweredCount: unansweredCount,
-  timeSpent: timeSpentInSeconds
+  correct: correctCount,
+  incorrect: incorrectCount,
+  unanswered: unansweredCount,
+  timeSpent: timeSpent
 };
 
-fetch('https://script.google.com/macros/s/AKfycbxRG2nTnpGyoR6A4ooXQLks1f_YEHy3gSSSoALPxnI2yUjTOqGa-lWyNQTgjIg0i6cI/exec', {
+fetch('https://script.google.com/macros/s/AKfycbxxxx.../exec', {
   method: 'POST',
+  mode: 'no-cors',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(payload)
 });
