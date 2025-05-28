@@ -212,30 +212,25 @@
       document.getElementById('reviewSection').classList.remove('hidden');
 
       const payload = {
-  class: document.getElementById('userClass').value,
-  number: document.getElementById('userNumber').value,
-  name: document.getElementById('userName').value,
-  score: score,
-  correct: correctCount,
-  incorrect: incorrectCount,
-  unanswered: unansweredCount,
-  timeSpent: timeTaken
+        class: document.getElementById('userClass').value,
+        number: document.getElementById('userNumber').value,
+        name: document.getElementById('userName').value,
+        score: score,
+        correct: correctCount,
+        incorrect: incorrectCount,
+        unanswered: unansweredCount,
+        timeSpent: timeSpent
       };
 
       fetch('https://script.google.com/macros/s/AKfycbzI6QVXVUFpXcU9gwjeIxTsTGuP-PNnEtjCgj2dRIu8AucybNGlPaoGr2JH42L0Tfyu/exec', {
-  method: 'POST',
-  mode: 'no-cors',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(payload)
-})
-.then(() => {
-  console.log("資料已送出至 Google Sheet");
-})
-.catch(error => {
-  console.error("傳送失敗：", error);
-});
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.text())
+      .then(data => console.log("Google Sheet 回應：", data))
+      .catch(error => console.error("發送至 Google Sheet 錯誤：", error));
+    });
 
     document.getElementById('retryBtn').addEventListener('click', () => {
       document.getElementById('quizForm').innerHTML = '';
