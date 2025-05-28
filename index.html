@@ -21,14 +21,12 @@
 </head>
 <body>
   <h1>English Vocabulary Online Test</h1>
-
   <div id="userInfo">
     <label>Class: <input type="text" id="userClass" required /></label>
     <label>Number: <input type="text" id="userNumber" required /></label>
     <label>Name: <input type="text" id="userName" required /></label>
     <button id="startBtn">Start Quiz</button>
   </div>
-
   <div id="quizSection" class="hidden">
     <p id="timer">Time left: 15:00</p>
     <form id="quizForm"></form>
@@ -41,11 +39,11 @@
     </div>
     <button id="retryBtn">🔁 重新測驗</button>
   </div>
-
   <script>
     const items = [...Array(50)].map((_, i) => ({
       audio: `chunk_${String(i + 1).padStart(2, '0')}.mp3`,
-      word: ['pet','pit','jet','net','sit','hit','fix','fox','six','mix','ox','box','bear','monkey','tiger','lion','horse','goat','sing','dance','read','write','draw','can','can\'t','Goodbye.','See you.','I\'m sorry.','That\'s OK.','do','for','them','How about…?','show','have','great','Time to go home.','today','mom','mommy','mother','card','flower','cake','Happy Mother\'s Day.','on','Don\'t worry.','let\'s','here is…','I love you.'][i] }));
+      word: ['pet','pit','jet','net','sit','hit','fix','fox','six','mix','ox','box','bear','monkey','tiger','lion','horse','goat','sing','dance','read','write','draw','can','can\'t','Goodbye.','See you.','I\'m sorry.','That\'s OK.','do','for','them','How about…?','show','have','great','Time to go home.','today','mom','mommy','mother','card','flower','cake','Happy Mother\'s Day.','on','Don\'t worry.','let\'s','here is…','I love you.'][i]
+    }));
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -55,23 +53,36 @@
       return array;
     }
 
-    let selectedItems, choiceItems, typingItems, timerStartTime;
+    let selectedItems, choiceItems, typingItems, timerStartTime, totalTime = 15 * 60;
 
     document.getElementById('startBtn').addEventListener('click', () => {
       const userClass = document.getElementById('userClass').value.trim();
       const userNumber = document.getElementById('userNumber').value.trim();
       const userName = document.getElementById('userName').value.trim();
-
       if (!userClass || !userNumber || !userName) {
         alert('請完整填寫班級、座號與姓名再開始測驗。');
         return;
       }
-
       document.getElementById('userInfo').classList.add('hidden');
       document.getElementById('quizSection').classList.remove('hidden');
       startTimer();
       buildQuiz();
     });
+
+    function startTimer() {
+      timerStartTime = Date.now();
+      const timerElement = document.getElementById('timer');
+      const interval = setInterval(() => {
+        const minutes = Math.floor(totalTime / 60);
+        const seconds = totalTime % 60;
+        timerElement.textContent = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        totalTime--;
+        if (totalTime < 0) {
+          clearInterval(interval);
+          document.getElementById('submitBtn').click();
+        }
+      }, 1000);
+    }
 
     function buildQuiz() {
       selectedItems = shuffle([...items]).slice(0, 20);
@@ -105,7 +116,7 @@
 
         if (index < 10) {
           const options = shuffle([item.word, ...shuffle(items.filter(i => i.word !== item.word).map(i => i.word)).slice(0, 3)]);
-          options.forEach((option) => {
+          options.forEach(option => {
             const label = document.createElement('label');
             const radio = document.createElement('input');
             radio.type = 'radio';
@@ -128,32 +139,15 @@
         feedback.className = 'feedback';
         feedback.id = `feedback_${index}`;
         div.appendChild(feedback);
-
         quizForm.appendChild(div);
       });
-    }
-
-    let totalTime = 15 * 60;
-    function startTimer() {
-      timerStartTime = Date.now();
-      const timerElement = document.getElementById('timer');
-      const interval = setInterval(() => {
-        const minutes = Math.floor(totalTime / 60);
-        const seconds = totalTime % 60;
-        timerElement.textContent = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        totalTime--;
-        if (totalTime < 0) {
-          clearInterval(interval);
-          document.getElementById('submitBtn').click();
-        }
-      }, 1000);
     }
 
     document.getElementById('submitBtn').addEventListener('click', () => {
       const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
       const minutes = Math.floor(elapsed / 60);
       const seconds = elapsed % 60;
-      const timeTaken = `${minutes}分${seconds}秒`;
+      const timeSpent = `${minutes}分${seconds}秒`;
 
       let score = 0, correctCount = 0, incorrectCount = 0, unansweredCount = 0;
       let wrongItems = [];
@@ -192,8 +186,7 @@
       document.getElementById('result').classList.remove('hidden');
       document.getElementById('result').textContent = `你獲得 ${score} 分。`;
 
-      const scoreTable = document.getElementById('scoreTable');
-      scoreTable.innerHTML = `
+      document.getElementById('scoreTable').innerHTML = `
         <h3>測驗結果分析</h3>
         <table>
           <tr><th>類別</th><th>數量</th></tr>
@@ -201,7 +194,7 @@
           <tr><td>答錯</td><td>${incorrectCount}</td></tr>
           <tr><td>未作答</td><td>${unansweredCount}</td></tr>
           <tr><td>總分</td><td>${score}</td></tr>
-          <tr><td>作答時間</td><td>${timeTaken}</td></tr>
+          <tr><td>作答時間</td><td>${timeSpent}</td></tr>
         </table>`;
 
       const review = document.getElementById('reviewContent');
@@ -218,23 +211,25 @@
       });
       document.getElementById('reviewSection').classList.remove('hidden');
 
-const payload = {
-  class: document.getElementById('userClass').value,
-  number: document.getElementById('userNumber').value,
-  name: document.getElementById('userName').value,
-  score: score,
-  correct: correctCount,
-  incorrect: incorrectCount,
-  unanswered: unansweredCount,
-  timeSpent: timeSpent
-};
+      const payload = {
+        class: document.getElementById('userClass').value,
+        number: document.getElementById('userNumber').value,
+        name: document.getElementById('userName').value,
+        score: score,
+        correct: correctCount,
+        incorrect: incorrectCount,
+        unanswered: unansweredCount,
+        timeSpent: timeSpent
+      };
 
-fetch('https://script.google.com/macros/s/AKfycbyYdENwdzS_ae1dkIQpNfWq17yPoAQMnEYNL3PTRUXli7iR-ASlPb_GgpphGZbyEnhv/exec', {
-  method: 'POST',
-  mode: 'no-cors',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(payload)
-});
+      fetch('https://script.google.com/macros/s/AKfycbyYdENwdzS_ae1dkIQpNfWq17yPoAQMnEYNL3PTRUXli7iR-ASlPb_GgpphGZbyEnhv/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.text())
+      .then(data => console.log("Google Sheet 回應：", data))
+      .catch(error => console.error("發送至 Google Sheet 錯誤：", error));
     });
 
     document.getElementById('retryBtn').addEventListener('click', () => {
