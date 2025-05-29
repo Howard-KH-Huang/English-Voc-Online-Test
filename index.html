@@ -43,7 +43,7 @@
   <script>
     const items = [...Array(50)].map((_, i) => ({
       audio: `chunk_${String(i + 1).padStart(2, '0')}.mp3`,
-      word: ['pet','pit','jet','net','sit','hit','fix','fox','six','mix','ox','box','bear','monkey','tiger','lion','horse','goat','sing','dance','read','write','draw','can','can\'t','Goodbye.','See you.','I\'m sorry.','That\'s OK.','do','for','them','How about…?','show','have','great','Time to go home.','today','mom','mommy','mother','card','flower','cake','Happy Mother\'s Day.','on','Don\'t worry.','let\'s','here is…','I love you.'][i]
+      word: ['pet','pit','jet','net','sit','hit','fix','fox','six','mix','ox','box','bear','monkey','tiger','lion','horse','goat','sing','dance','read','write','draw','can','can\'t','Goodbye.','See you.','I\'m sorry.','That\'s OK.','do','for','them','How about...?','show','have','great','Time to go home.','today','mom','mommy','mother','card','flower','cake','Happy Mother\'s Day.','on','Don\'t worry.','let\'s','here is...','I love you.'][i]
     }));
 
     function shuffle(array) {
@@ -155,7 +155,7 @@
       const timeSpent = `${minutes}分${seconds}秒`;
 
       let score = 0, correctCount = 0, incorrectCount = 0, unansweredCount = 0;
-      let wrongItems = [];
+      let wrongItems = []; let wrongWords = [];
 
       [...choiceItems, ...typingItems].forEach((item, index) => {
         const radios = document.querySelectorAll(`[name='answer_${index}']`);
@@ -175,6 +175,7 @@
           feedback.textContent = `? 未作答，正確答案為：${item.word}`;
           feedback.className = 'feedback unanswered';
           wrongItems.push(item);
+          wrongWords.push(item.word);
         } else if (userAnswer === correctAnswer) {
           score += 5;
           correctCount++;
@@ -185,6 +186,7 @@
           feedback.textContent = `❌ 答錯，正確答案為：${item.word}`;
           feedback.className = 'feedback incorrect';
           wrongItems.push(item);
+          wrongWords.push(item.word);
         }
       });
 
@@ -224,7 +226,8 @@
         correct: correctCount,
         incorrect: incorrectCount,
         unanswered: unansweredCount,
-        timeSpent: timeSpent
+        timeSpent: timeSpent,
+        wrongWords: wrongWords.join(', ')
       };
 
       fetch('https://script.google.com/macros/s/AKfycbwzINYcuMgUAnQylQmzeujzVWKV43RMAtaWTD_SkEsYBODWPXGztaQlK1qkl_PwtIGBOA/exec', {
