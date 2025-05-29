@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>English Vocabulary Online Test</title>
+  <title>113-2-English Vocabulary Online Test (Grade 3)</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     .question { margin-bottom: 20px; }
@@ -12,6 +12,12 @@
     .incorrect { color: red; }
     .unanswered { color: orange; }
     .hidden { display: none; }
+    .overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8); color: white;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 24px; z-index: 9999;
+    }
     table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
     th { background-color: #f2f2f2; }
     #userInfo input { margin: 5px 0; }
@@ -20,13 +26,14 @@
   </style>
 </head>
 <body>
-  <h1>English Vocabulary Online Test</h1>
+  <h1>113-2-English Vocabulary Online Test (Grade 3)</h1>
   <div id="userInfo">
     <label>Class: <input type="text" id="userClass" required /></label>
     <label>Number: <input type="text" id="userNumber" required /></label>
     <label>Name: <input type="text" id="userName" required /></label>
     <button id="startBtn">Start Quiz</button>
   </div>
+
   <div id="quizSection" class="hidden">
     <p id="timer">Time left: 15:00</p>
     <form id="quizForm"></form>
@@ -38,12 +45,12 @@
       <div id="reviewContent"></div>
     </div>
     <button id="retryBtn">🔁 重新測驗</button>
-  </div>
-
+  
   <script>
     const items = [...Array(50)].map((_, i) => ({
       audio: `chunk_${String(i + 1).padStart(2, '0')}.mp3`,
-      word: ['pet','pit','jet','net','sit','hit','fix','fox','six','mix','ox','box','bear','monkey','tiger','lion','horse','goat','sing','dance','read','write','draw','can','can\'t','Goodbye.','See you.','I\'m sorry.','That\'s OK.','do','for','them','How about...?','show','have','great','Time to go home.','today','mom','mommy','mother','card','flower','cake','Happy Mother\'s Day.','on','Don\'t worry.','let\'s','here is...','I love you.'][i]
+      word: ['pet','pit','jet','net','sit','hit','fix','fox','six','mix','ox','box','bear','monkey','tiger','lion','horse','goat','sing','dance','read','write','draw','can','can\'t','Goodbye.','See you.','I\'m sorry.','That\'s OK.','do','for','them','How about...?','show','have','great','Time to go home.','today','mom','mommy','mother','card','flower','cake','Happy Mother\'s Day.','on','Don\'t worry.','let\'s','here is...','I love you.'][i],
+      zh: ['寵物','坑','噴射機','網子','坐下','打','修理','狐狸','六','混合','公牛','盒子','熊','猴子','老虎','獅子','馬','山羊','唱歌','跳舞','閱讀','寫字','畫畫','可以','不可以','再見','再見','對不起','沒關係','做','給','他們','...如何？','展示','有','很棒','回家時間到了','今天','媽媽','媽咪','母親','卡片','花','蛋糕','母親節快樂','在','別擔心','讓我們','這是...','我愛你'][i]
     }));
 
     function shuffle(array) {
@@ -54,7 +61,8 @@
       return array;
     }
 
-    let selectedItems, choiceItems, typingItems, timerStartTime, totalTime = 15 * 60;
+    let selectedItems, choiceItems, typingItems, zhItems;
+    let timerStartTime, totalTime = 15 * 60;
     let interval;
 
     document.getElementById('startBtn').addEventListener('click', () => {
@@ -81,19 +89,25 @@
         totalTime--;
         if (totalTime < 0) {
           clearInterval(interval);
-          document.getElementById('submitBtn').click();
+          document.getElementById('overlay').classList.remove('hidden');
+          document.getElementById('timeoutSound').play();
+          setTimeout(() => {
+            document.getElementById('submitBtn').click();
+          }, 1500);
         }
       }, 1000);
     }
 
     function buildQuiz() {
-      selectedItems = shuffle([...items]).slice(0, 20);
+      selectedItems = shuffle([...items]).slice(0, 25);
       choiceItems = selectedItems.slice(0, 10);
-      typingItems = selectedItems.slice(10);
+      typingItems = selectedItems.slice(10, 20);
+      zhItems = selectedItems.slice(20);
+
       const quizForm = document.getElementById('quizForm');
       quizForm.innerHTML = '';
 
-      [...choiceItems, ...typingItems].forEach((item, index) => {
+      [...choiceItems, ...typingItems, ...zhItems].forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'question';
 
@@ -129,12 +143,25 @@
             div.appendChild(label);
             div.appendChild(document.createElement('br'));
           });
-        } else {
+        } else if (index < 20) {
           const input = document.createElement('input');
           input.type = 'text';
           input.name = `answer_${index}`;
           input.placeholder = 'Type your answer';
           div.appendChild(input);
+        } else {
+          const options = shuffle([item.zh, ...shuffle(items.filter(i => i.zh !== item.zh).map(i => i.zh)).slice(0, 3)]);
+          options.forEach(option => {
+            const label = document.createElement('label');
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = `answer_${index}`;
+            radio.value = option;
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(option));
+            div.appendChild(label);
+            div.appendChild(document.createElement('br'));
+          });
         }
 
         const feedback = document.createElement('div');
@@ -146,7 +173,8 @@
     }
 
     document.getElementById('submitBtn').addEventListener('click', () => {
-      clearInterval(interval); // ✅ 停止計時器
+      document.getElementById('submitBtn').disabled = true; // 防止重複送出
+      clearInterval(interval);
       document.getElementById('timer').textContent += '（已提交）';
 
       const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
@@ -158,36 +186,41 @@
       let wrongItems = [];
       let wrongWords = [];
 
-      [...choiceItems, ...typingItems].forEach((item, index) => {
-        const radios = document.querySelectorAll(`[name='answer_${index}']`);
+      [...choiceItems, ...typingItems, ...zhItems].forEach((item, index) => {
+        const inputs = document.querySelectorAll(`[name='answer_${index}']`);
         let userAnswer = '';
-        if (radios.length > 1) {
-          const checked = [...radios].find(r => r.checked);
-          if (checked) userAnswer = checked.value.trim().toLowerCase();
-        } else if (radios.length === 1) {
-          userAnswer = radios[0].value.trim().toLowerCase();
+        if (inputs.length > 1) {
+          const checked = [...inputs].find(r => r.checked);
+          if (checked) userAnswer = checked.value.trim();
+        } else if (inputs.length === 1) {
+          userAnswer = inputs[0].value.trim();
         }
 
         const feedback = document.getElementById(`feedback_${index}`);
-        const correctAnswer = item.word.toLowerCase();
+        const correctAnswer = index < 20 ? item.word : (index >= 30 ? item.word : item.zh);
+        
 
         if (!userAnswer) {
           unansweredCount++;
-          feedback.textContent = `? 未作答，正確答案為：${item.word}`;
+          feedback.textContent = index >= 30
+            ? `? 未作答，正確答案為：${item.zh}（${item.word}）`
+            : `? 未作答，正確答案為：${item.word}（${item.zh}）`;
           feedback.className = 'feedback unanswered';
           wrongItems.push(item);
           wrongWords.push(item.word);
-        } else if (userAnswer === correctAnswer) {
-          score += 5;
-          correctCount++;
-          feedback.textContent = '✅ 答對';
-          feedback.className = 'feedback correct';
-        } else {
-          incorrectCount++;
-          feedback.textContent = `❌ 答錯，正確答案為：${item.word}`;
-          feedback.className = 'feedback incorrect';
-          wrongItems.push(item);
-          wrongWords.push(item.word);
+      } else if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+        score += 4;
+        correctCount++;
+        feedback.textContent = '✅ 答對';
+        feedback.className = 'feedback correct';
+      } else {
+        incorrectCount++;
+        feedback.textContent = index >= 30
+          ? `❌ 答錯，正確答案為：${item.zh}（${item.word}）`
+          : `❌ 答錯，正確答案為：${item.word}（${item.zh}）`;
+        feedback.className = 'feedback incorrect';
+        wrongItems.push(item);
+        wrongWords.push(item.word);
         }
       });
 
@@ -212,9 +245,10 @@
         const audio = document.createElement('audio');
         audio.src = item.audio;
         audio.controls = true;
+        const correct = idx < 10 ? item.word : idx < 20 ? item.word : item.zh;
         div.appendChild(document.createTextNode(`錯題 ${idx + 1}: `));
         div.appendChild(audio);
-        div.appendChild(document.createTextNode(` 正確答案：${item.word}`));
+        div.appendChild(document.createTextNode(` 正確答案：${item.zh}（${item.word}）`));
         review.appendChild(div);
       });
       document.getElementById('reviewSection').classList.remove('hidden');
@@ -247,6 +281,7 @@
       document.getElementById('reviewSection').classList.add('hidden');
       document.getElementById('userInfo').classList.remove('hidden');
       document.getElementById('quizSection').classList.add('hidden');
+      document.getElementById('overlay').classList.add('hidden');
       document.getElementById('timer').textContent = 'Time left: 15:00';
       totalTime = 15 * 60;
       timerStartTime = null;
