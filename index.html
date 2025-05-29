@@ -155,7 +155,8 @@
       const timeSpent = `${minutes}分${seconds}秒`;
 
       let score = 0, correctCount = 0, incorrectCount = 0, unansweredCount = 0;
-      let wrongItems = []; let wrongWords = [];
+      let wrongItems = [];
+      let wrongWords = [];
 
       [...choiceItems, ...typingItems].forEach((item, index) => {
         const radios = document.querySelectorAll(`[name='answer_${index}']`);
