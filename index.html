@@ -34,8 +34,12 @@
     <button id="startBtn">Start Quiz</button>
   </div>
 
-  <div id="quizSection" class="hidden">
+
+
+
+    <div id="quizSection" class="hidden">
     <p id="timer">Time left: 15:00</p>
+    <p id="progressIndicator">已完成 0 / 25 題</p>
     <form id="quizForm"></form>
     <button id="submitBtn">Submit</button>
     <div id="result" class="hidden"></div>
@@ -45,6 +49,8 @@
       <div id="reviewContent"></div>
     </div>
     <button id="retryBtn">🔁 重新測驗</button>
+  </div>
+
   
   <script>
     const items = [...Array(50)].map((_, i) => ({
@@ -79,6 +85,7 @@
       buildQuiz();
     });
 
+
     function startTimer() {
       timerStartTime = Date.now();
       const timerElement = document.getElementById('timer');
@@ -89,14 +96,25 @@
         totalTime--;
         if (totalTime < 0) {
           clearInterval(interval);
-          document.getElementById('overlay').classList.remove('hidden');
-          document.getElementById('timeoutSound').play();
-          setTimeout(() => {
-            document.getElementById('submitBtn').click();
-          }, 1500);
+          document.getElementById('submitBtn').click();
         }
       }, 1000);
     }
+
+
+    function updateProgress() {
+      const total = 25;
+      const inputs = document.querySelectorAll("input");
+      const answered = [...Array(total).keys()].filter(index => {
+        const group = document.querySelectorAll(`[name='answer_${index}']`);
+        if (!group.length) return false;
+        if (group[0].type === 'radio') return [...group].some(g => g.checked);
+        return group[0].value.trim() !== '';
+      });
+      document.getElementById("progressIndicator").textContent = `已完成 ${answered.length} / ${total} 題`;
+    }
+
+
 
     function buildQuiz() {
       selectedItems = shuffle([...items]).slice(0, 25);
@@ -130,38 +148,31 @@
         div.appendChild(audio);
         div.appendChild(document.createElement('br'));
 
-        if (index < 10) {
-          const options = shuffle([item.word, ...shuffle(items.filter(i => i.word !== item.word).map(i => i.word)).slice(0, 3)]);
+        if (index < 10 || index >= 20) {
+          const options = shuffle(
+            index < 10
+              ? [item.word, ...shuffle(items.filter(i => i.word !== item.word)).slice(0, 3).map(i => i.word)]
+              : [item.zh, ...shuffle(items.filter(i => i.zh !== item.zh)).slice(0, 3).map(i => i.zh)]
+          );
           options.forEach(option => {
             const label = document.createElement('label');
             const radio = document.createElement('input');
             radio.type = 'radio';
             radio.name = `answer_${index}`;
             radio.value = option;
+            radio.addEventListener('change', updateProgress);
             label.appendChild(radio);
             label.appendChild(document.createTextNode(option));
             div.appendChild(label);
             div.appendChild(document.createElement('br'));
           });
-        } else if (index < 20) {
+        } else {
           const input = document.createElement('input');
           input.type = 'text';
           input.name = `answer_${index}`;
           input.placeholder = 'Type your answer';
+          input.addEventListener('input', updateProgress);
           div.appendChild(input);
-        } else {
-          const options = shuffle([item.zh, ...shuffle(items.filter(i => i.zh !== item.zh).map(i => i.zh)).slice(0, 3)]);
-          options.forEach(option => {
-            const label = document.createElement('label');
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = `answer_${index}`;
-            radio.value = option;
-            label.appendChild(radio);
-            label.appendChild(document.createTextNode(option));
-            div.appendChild(label);
-            div.appendChild(document.createElement('br'));
-          });
         }
 
         const feedback = document.createElement('div');
@@ -170,12 +181,24 @@
         div.appendChild(feedback);
         quizForm.appendChild(div);
       });
+    
+
+      updateProgress();
     }
+
+    function disableAllInputs() {
+      document.querySelectorAll('#quizForm input').forEach(input => {
+        input.disabled = true;
+      });
+    }
+
+
 
     document.getElementById('submitBtn').addEventListener('click', () => {
       document.getElementById('submitBtn').disabled = true; // 防止重複送出
       clearInterval(interval);
       document.getElementById('timer').textContent += '（已提交）';
+
 
       const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
       const minutes = Math.floor(elapsed / 60);
@@ -274,20 +297,7 @@
     });
 
     document.getElementById('retryBtn').addEventListener('click', () => {
-      document.getElementById('quizForm').innerHTML = '';
-      document.getElementById('result').classList.add('hidden');
-      document.getElementById('scoreTable').innerHTML = '';
-      document.getElementById('reviewContent').innerHTML = '';
-      document.getElementById('reviewSection').classList.add('hidden');
-      document.getElementById('userInfo').classList.remove('hidden');
-      document.getElementById('quizSection').classList.add('hidden');
-      document.getElementById('overlay').classList.add('hidden');
-      document.getElementById('timer').textContent = 'Time left: 15:00';
-      totalTime = 15 * 60;
-      timerStartTime = null;
-      document.getElementById('userClass').value = '';
-      document.getElementById('userNumber').value = '';
-      document.getElementById('userName').value = '';
+      location.reload(); // 簡化：整頁重載即可
     });
   </script>
 </body>
